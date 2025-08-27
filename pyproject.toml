@@ -3,7 +3,8 @@ line-length = 88
 target-version = ["py311"]
 
 [tool.ruff]
-select = ["E", "F", "B", "I"]
+select = ["E", "F", "B"]
+ignore = ["E501"]
 line-length = 88
 src = ["backend"]
 

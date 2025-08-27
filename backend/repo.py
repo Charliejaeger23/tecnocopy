@@ -51,9 +51,6 @@ def set_cursor(conn: sqlite3.Connection, value: str):
     conn.commit()
 
 
-import hashlib
-
-
 def compute_hash(c: dict) -> str:
     # Garantiza string en todos los campos relevantes
     fields = ("name", "email", "phone", "address", "created_at", "updated_at")
