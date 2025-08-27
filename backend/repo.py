@@ -17,9 +17,23 @@ def get_conn(db_path: str):
         created_at TEXT,
         updated_at TEXT,
         hash TEXT
-    )"""
+    )""",
     )
-    cur.execute("CREATE INDEX IF NOT EXISTS idx_clients_updated_at ON clients(datetime(updated_at))")
+    cur.execute(
+        """CREATE TABLE IF NOT EXISTS sync_audit (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        ts TEXT,
+        inserts INTEGER,
+        updates INTEGER,
+        duration REAL,
+        error TEXT
+    )""",
+    )
+    cur.execute(
+        "CREATE INDEX IF NOT EXISTS idx_clients_updated_at ON clients(datetime(updated_at))"
+    )
+    cur.execute("CREATE INDEX IF NOT EXISTS idx_clients_name ON clients(name)")
+    cur.execute("CREATE INDEX IF NOT EXISTS idx_clients_email ON clients(email)")
     conn.commit()
     return conn
 
@@ -31,11 +45,14 @@ def get_cursor(conn: sqlite3.Connection):
 
 
 def set_cursor(conn: sqlite3.Connection, value: str):
-    conn.execute("INSERT OR REPLACE INTO meta(k, v) VALUES('cursor_updated_at', ?)", (value,))
+    conn.execute(
+        "INSERT OR REPLACE INTO meta(k, v) VALUES('cursor_updated_at', ?)", (value,)
+    )
     conn.commit()
 
 
 import hashlib
+
 
 def compute_hash(c: dict) -> str:
     # Garantiza string en todos los campos relevantes
@@ -90,3 +107,43 @@ def list_clients(conn: sqlite3.Connection, limit: int, offset: int):
         (limit, offset),
     )
     return [dict(row) for row in cur.fetchall()]
+
+
+def search_clients(
+    conn: sqlite3.Connection, q: str, fields: list[str], limit: int, offset: int
+):
+    like = f"%{q.lower()}%"
+    where = " OR ".join([f"lower({f}) LIKE ?" for f in fields])
+    params = [like] * len(fields) + [limit, offset]
+    cur = conn.execute(
+        f"SELECT client_id, name, email, phone, address, created_at, updated_at FROM clients WHERE {where} ORDER BY datetime(updated_at) DESC LIMIT ? OFFSET ?",
+        params,
+    )
+    return [dict(row) for row in cur.fetchall()]
+
+
+def insert_audit(conn: sqlite3.Connection, metrics: dict):
+    conn.execute(
+        "INSERT INTO sync_audit(ts, inserts, updates, duration, error) VALUES(?,?,?,?,?)",
+        (
+            metrics.get("ts"),
+            metrics.get("inserts", 0),
+            metrics.get("updates", 0),
+            metrics.get("duration", 0.0),
+            metrics.get("error"),
+        ),
+    )
+    conn.commit()
+
+
+def count_clients(conn: sqlite3.Connection) -> int:
+    cur = conn.execute("SELECT COUNT(*) FROM clients")
+    return cur.fetchone()[0]
+
+
+def get_last_audit(conn: sqlite3.Connection) -> dict | None:
+    cur = conn.execute(
+        "SELECT ts, inserts, updates, duration, error FROM sync_audit ORDER BY id DESC LIMIT 1"
+    )
+    row = cur.fetchone()
+    return dict(row) if row else None

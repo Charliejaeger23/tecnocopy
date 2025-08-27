@@ -24,7 +24,9 @@ def load_settings() -> Settings:
         stel_page_size=int(os.getenv("STEL_PAGE_SIZE", "200")),
         db_path=os.getenv("DB_PATH", "./tekno.db"),
         sheets_spreadsheet_id=os.getenv("SHEETS_SPREADSHEET_ID", ""),
-        google_application_credentials=os.getenv("GOOGLE_APPLICATION_CREDENTIALS", "./service_account.json"),
+        google_application_credentials=os.getenv(
+            "GOOGLE_APPLICATION_CREDENTIALS", "./service_account.json"
+        ),
         sync_interval_seconds=int(os.getenv("SYNC_INTERVAL_SECONDS", "60")),
         backend_host=os.getenv("BACKEND_HOST", "0.0.0.0"),
         backend_port=int(os.getenv("BACKEND_PORT", "8000")),

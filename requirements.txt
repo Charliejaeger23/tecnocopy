@@ -6,3 +6,4 @@ pydantic==2.8.2
 python-dotenv==1.0.1
 gspread==6.1.4
 google-auth==2.34.0
+gunicorn==21.2.0
