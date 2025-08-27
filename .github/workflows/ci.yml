@@ -20,6 +20,7 @@ jobs:
       # Secrets para tests/integración (si no existen, quedan vacíos)
       STEL_BASE_URL: ${{ secrets.STEL_BASE_URL }}
       STEL_API_KEY:  ${{ secrets.STEL_API_KEY }}
+      SHEETS_SPREADSHEET_ID: ${{ secrets.SHEETS_SPREADSHEET_ID }}
     steps:
       - uses: actions/checkout@v4
 
