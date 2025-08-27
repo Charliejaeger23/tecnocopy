@@ -19,3 +19,12 @@ Sincronizador entre STEL, SQLite y Google Sheets con API FastAPI y frontend Reac
 ```bash
 docker compose up --build
 ```
+
+## CI/CD
+
+Para que el workflow de GitHub Actions funcione correctamente es necesario definir los siguientes secrets en *Settings > Secrets and variables > Actions* del repositorio:
+
+- `STEL_BASE_URL`
+- `STEL_API_KEY`
+
+Estos valores se inyectan durante la ejecución de las pruebas automatizadas.

@@ -7,6 +7,9 @@ on:
 jobs:
   backend:
     runs-on: ubuntu-latest
+    env:
+      STEL_BASE_URL: ${{ secrets.STEL_BASE_URL }}
+      STEL_API_KEY: ${{ secrets.STEL_API_KEY }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v4
