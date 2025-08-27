@@ -1,0 +1,6 @@
+__pycache__/
+.venv/
+node_modules/
+.env
+service_account.json
+tekno.db
