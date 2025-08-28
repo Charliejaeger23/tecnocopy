@@ -1,4 +1,4 @@
-import js from '@eslint/js'
+import js from 'eslint/js'
 import react from 'eslint-plugin-react'
 import globals from 'globals'
 
@@ -17,8 +17,6 @@ export default [
       ...react.configs.recommended.rules,
       'react/react-in-jsx-scope': 'off',
     },
-    settings: {
-      react: { version: 'detect' },
-    },
+    settings: { react: { version: 'detect' } },
   },
 ]
