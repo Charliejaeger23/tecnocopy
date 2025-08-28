@@ -9,7 +9,21 @@ MAX_LIMIT = 200
 
 @app.get("/api/health")
 def health():
-    return {"status": "ok"}
+    db_ok = False
+    try:
+        conn = get_conn(settings.db_path)
+        try:
+            conn.execute("SELECT 1")
+            db_ok = True
+        finally:
+            conn.close()
+    except Exception:
+        db_ok = False
+
+    return {
+        "status": "ok",
+        "db": "ok" if db_ok else "error",
+    }
 
 
 ALLOWED_CLIENT_FIELDS = {"name", "email", "phone", "address"}  # ajusta a tu esquema
