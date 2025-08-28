@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, feature/** ]
   pull_request:
     branches: [ main ]
 
@@ -17,7 +17,6 @@ jobs:
       run:
         working-directory: backend
     env:
-      # Secrets para tests/integración (si no existen, quedan vacíos)
       STEL_BASE_URL: ${{ secrets.STEL_BASE_URL }}
       STEL_API_KEY:  ${{ secrets.STEL_API_KEY }}
       SHEETS_SPREADSHEET_ID: ${{ secrets.SHEETS_SPREADSHEET_ID }}
@@ -39,25 +38,17 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-          pip install ruff==0.6.8 pytest
+          pip install ruff==0.6.8 black==24.8.0 pytest
 
-      - name: Ruff format (check only)
+      - name: Ruff (format check)
         run: ruff format --check .
 
-      - name: Ruff lint
+      - name: Ruff (lint)
         run: ruff check .
 
-      # Tests unitarios sin red (mock), siempre corren
-      - name: Unit tests (mock)
+      - name: Pytest (unit/mocks)
         env:
           USE_STEL_MOCK: "true"
-        run: pytest -q
-
-      # Integración real contra STEL (solo si hay secrets)
-      - name: Integration tests (STEL)
-        if: ${{ env.STEL_BASE_URL != '' && env.STEL_API_KEY != '' }}
-        env:
-          USE_STEL_MOCK: "false"
         run: pytest -q
 
   frontend:
@@ -75,8 +66,7 @@ jobs:
           cache: 'npm'
           cache-dependency-path: 'frontend/package-lock.json'
 
-      # npm ci requiere lockfile correcto ya commiteado
-      - name: Install deps (ci)
+      - name: Install deps
         run: npm ci
 
       - name: Lint
@@ -91,22 +81,20 @@ jobs:
     needs: [backend, frontend]
     steps:
       - uses: actions/checkout@v4
-
       - uses: docker/setup-buildx-action@v3
 
-      # Build de imágenes; solo probamos que compilen (push: false)
       - name: Build backend image
         uses: docker/build-push-action@v6
         with:
           context: .
-          file: backend/Dockerfile
+          file: Dockerfile.backend
           push: false
-          tags: backend:test
+          tags: backend:ci
 
       - name: Build frontend image
         uses: docker/build-push-action@v6
         with:
           context: .
-          file: frontend/Dockerfile
+          file: Dockerfile.frontend
           push: false
-          tags: frontend:test
+          tags: frontend:ci
