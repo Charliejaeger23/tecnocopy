@@ -1,13 +1,7 @@
-/* frontend/.eslintrc.cjs */
+cat > frontend/.eslintrc.cjs <<'EOF'
 module.exports = {
-  env: {
-    browser: true,
-    es2021: true,
-  },
-  extends: [
-    'eslint:recommended',
-    'plugin:react/recommended',
-  ],
+  env: { browser: true, es2021: true },
+  extends: ['eslint:recommended', 'plugin:react/recommended'],
   parserOptions: {
     ecmaVersion: 'latest',
     sourceType: 'module',
@@ -15,7 +9,6 @@ module.exports = {
   },
   plugins: ['react'],
   settings: { react: { version: 'detect' } },
-  rules: {
-    'react/react-in-jsx-scope': 'off',
-  },
+  rules: { 'react/react-in-jsx-scope': 'off' },
 };
+EOF
