@@ -1,11 +1,14 @@
-#!/bin/sh
-set -e
+#!/bin/bash
+# Inicia backend y frontend en modo desarrollo
 
-# Start backend
+# Backend
 uvicorn backend.api:app --reload --port 8000 &
-BACK_PID=$!
+BACKEND_PID=$!
 
-# Start frontend
-cd frontend && npm run dev
+# Frontend
+cd frontend
+npm run dev &
+FRONTEND_PID=$!
 
-wait $BACK_PID
+# Esperar procesos
+wait $BACKEND_PID $FRONTEND_PID

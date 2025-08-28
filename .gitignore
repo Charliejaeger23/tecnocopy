@@ -1,6 +1,14 @@
+# Python / Node
 __pycache__/
 .venv/
 node_modules/
+dist/
+
+# Build / IDE
+*.log
+.DS_Store
+
+# Datos locales / secretos
 .env
 service_account.json
 tekno.db
