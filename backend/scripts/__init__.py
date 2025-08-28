@@ -38,5 +38,7 @@ def main():
 
 if __name__ == "__main__":
     if not (settings.STEL_BASE_URL and settings.STEL_API_KEY):
-        raise SystemExit("❌ Falta configurar STEL_BASE_URL o STEL_API_KEY en .env o secrets")
+        raise SystemExit(
+            "❌ Falta configurar STEL_BASE_URL o STEL_API_KEY en .env o secrets"
+        )
     main()
