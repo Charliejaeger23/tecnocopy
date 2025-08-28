@@ -12,3 +12,5 @@ dist/
 .env
 service_account.json
 tekno.db
+.stel_mode
+coverage/

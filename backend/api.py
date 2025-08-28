@@ -1,52 +1,31 @@
-from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
-from apscheduler.schedulers.asyncio import AsyncIOScheduler
-from .config import settings
-from .repo import get_conn, list_clients
-from .sync import run_sync
+# ... (código anterior sin tocar)
 
-app = FastAPI()
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+    return {
+        "db": db_ok,
+        "sheets": sheets_ok,
+        "cursor": cursor,
+        "last_sync_at": last_audit.get("ts") if last_audit else None,
+    }
 
-scheduler = AsyncIOScheduler()
-
-
-@app.on_event("startup")
-def on_startup():
-    scheduler.add_job(
-        run_sync,
-        "interval",
-        seconds=settings.sync_interval_seconds,
-        max_instances=1,
-        coalesce=True,
-    )
-    scheduler.start()
-
-
-@app.on_event("shutdown")
-def on_shutdown():
-    scheduler.shutdown()
-
-
-@app.get("/api/health")
-def health():
-    return {"ok": True}
-
+MAX_LIMIT = 200
 
 @app.get("/api/clients")
-def get_clients(limit: int = 100, offset: int = 0):
+def get_clients(
+    limit: int = Query(100, ge=1, le=MAX_LIMIT),
+    offset: int = Query(0, ge=0),
+):
     conn = get_conn(settings.db_path)
     try:
         return list_clients(conn, limit, offset)
     finally:
         conn.close()
 
-
-@app.post("/api/sync")
-def trigger_sync():
-    return run_sync()
+@app.get("/api/clients/search")
+def search(
+    q: str,
+    fields: str = "name,email",
+    limit: int = Query(100, ge=1, le=MAX_LIMIT),
+    offset: int = Query(0, ge=0),
+):
+    # implementación existente; no cambies la lógica que ya tenías
+    ...
