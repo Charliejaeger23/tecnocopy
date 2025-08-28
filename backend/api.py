@@ -6,11 +6,14 @@ app = FastAPI(title="TeknoSync API", version="1.0.0")
 
 MAX_LIMIT = 200
 
+
 @app.get("/api/health")
 def health():
     return {"status": "ok"}
 
+
 ALLOWED_CLIENT_FIELDS = {"name", "email", "phone", "address"}  # ajusta a tu esquema
+
 
 @app.get("/api/clients/search")
 def search(
@@ -30,6 +33,7 @@ def search(
         return search_clients(conn, q=q, fields=sel_fields, limit=limit, offset=offset)
     finally:
         conn.close()
+
 
 @app.get("/api/clients")
 def get_clients(
@@ -55,4 +59,3 @@ def search(
         return search_clients(conn, q=q, fields=fields, limit=limit, offset=offset)
     finally:
         conn.close()
-
