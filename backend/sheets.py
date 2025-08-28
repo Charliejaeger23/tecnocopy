@@ -1,5 +1,6 @@
 import gspread
 from google.oauth2.service_account import Credentials
+import time
 
 
 class SheetClient:
@@ -11,7 +12,15 @@ class SheetClient:
         self.ensure_headers()
 
     def ensure_headers(self):
-        headers = ["client_id", "name", "email", "phone", "address", "created_at", "updated_at"]
+        headers = [
+            "client_id",
+            "name",
+            "email",
+            "phone",
+            "address",
+            "created_at",
+            "updated_at",
+        ]
         existing = self.sheet.row_values(1)
         if existing != headers:
             self.sheet.update("A1:G1", [headers])
@@ -28,7 +37,15 @@ class SheetClient:
         if not rows:
             return
         index = self.build_index()
-        headers = ["client_id", "name", "email", "phone", "address", "created_at", "updated_at"]
+        headers = [
+            "client_id",
+            "name",
+            "email",
+            "phone",
+            "address",
+            "created_at",
+            "updated_at",
+        ]
         updates = []
         inserts = []
         for r in rows:
@@ -38,7 +55,26 @@ class SheetClient:
             else:
                 inserts.append(values)
         if updates:
-            data = [{"range": f"A{row}:G{row}", "values": [vals]} for row, vals in updates]
-            self.sheet.batch_update(data)
+            data = [
+                {"range": f"A{row}:G{row}", "values": [vals]} for row, vals in updates
+            ]
+            for attempt in range(5):
+                try:
+                    self.sheet.batch_update(data)
+                    break
+                except Exception:
+                    time.sleep(2**attempt)
         if inserts:
-            self.sheet.append_rows(inserts, value_input_option="RAW")
+            for attempt in range(5):
+                try:
+                    self.sheet.append_rows(inserts, value_input_option="RAW")
+                    break
+                except Exception:
+                    time.sleep(2**attempt)
+
+    def ping(self) -> bool:
+        try:
+            self.sheet.row_values(1)
+            return True
+        except Exception:
+            return False

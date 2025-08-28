@@ -10,6 +10,12 @@ services:
       - ./service_account.json:/app/service_account.json:ro
     ports:
       - "8000:8000"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
 
   frontend:
     build:
@@ -20,7 +26,13 @@ services:
     environment:
       - BACKEND_URL=http://backend:8000
     ports:
-      - "5173:5173"
+      - "8080:80"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
 
 volumes:
   tekno_db:
